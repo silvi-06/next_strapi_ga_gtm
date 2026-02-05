@@ -1,31 +1,42 @@
 import { BASE_URL } from "@/lib/strapi";
-import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server"
+import { cookies } from "next/headers"
 
-export async function DELETE(request: NextRequest, context: { params: { id: string } }) {
-    const JWT = (await cookies()).get('jwt')?.value
+export async function DELETE(
+    request: NextRequest,
+    context: { params: Promise<{ id: string }> }
+) {
+    const JWT = (await cookies()).get("jwt")?.value
 
     const { id } = await context.params
 
     if (!JWT) {
-        return NextResponse.json({
-            message: "Not Authenticated",
-
-        }, { status: 400 })
+        return NextResponse.json(
+            { message: "Not Authenticated" },
+            { status: 401 }
+        )
     }
+
     const res = await fetch(`${BASE_URL}/api/blogs/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-            Authorization: `Bearer ${JWT}`
-        }
+            Authorization: `Bearer ${JWT}`,
+        },
     })
 
+    if (!res.ok) {
+        return NextResponse.json(
+            { message: "Failed to delete blog" },
+            { status: res.status }
+        )
+    }
 
-
-    return NextResponse.json({
-        message: "Blog deleted",
-    }, { status: 200 })
+    return NextResponse.json(
+        { message: "Blog deleted" },
+        { status: 200 }
+    )
 }
+
 
 
 export async function PUT(
