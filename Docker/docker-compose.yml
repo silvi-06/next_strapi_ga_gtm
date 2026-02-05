@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: strapi-postgres
+    environment:
+      POSTGRES_DB: strapi
+      POSTGRES_USER: strapi
+      POSTGRES_PASSWORD: strapi
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  strapi:
+    container_name: strapi-backend
+    build: ../Backend/backend
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: strapi
+      DATABASE_USERNAME: strapi
+      DATABASE_PASSWORD: strapi
+      DATABASE_SSL: "false"
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4001
+
+      APP_KEYS: 372adea7afb326d4903ba6e8b76afc52c2a60e6eadb8fe6af2673ad2505d51f6,e2195cbc250efbe5ff49e042931984f8fb52b58e80341eb5a7ca38ce1711e10d,9c07c848ee5bef159134cf2524a82857395c6df41262db1d48f9ae8ac8eac34e,b4759037bd3fad0ae97a513e32d52ead1293004e39844d403060e7bc4e466125
+    ports:
+      - "4001:4001"
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
+
+
