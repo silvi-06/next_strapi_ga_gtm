@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const BASE_URL = 'http://localhost:4001'
+const BASE_URL = process.env.NEXT_PUBLIC_STRAPI_URL!;
 
 export async function GET(request: NextRequest) {
     try {

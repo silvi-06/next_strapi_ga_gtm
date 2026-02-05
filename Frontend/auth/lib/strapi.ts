@@ -1,6 +1,6 @@
 import { cookies } from "next/headers"
 
-export const BASE_URL = 'http://localhost:4001'
+export const BASE_URL = process.env.NEXT_PUBLIC_STRAPI_URL!;
 
 export async function getBlog() {
     const JWT = (await cookies()).get('jwt')?.value
