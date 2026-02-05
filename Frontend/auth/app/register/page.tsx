@@ -32,11 +32,7 @@ export default function Register() {
             return;
         }
 
-        if (data.data.jwt) {
-            alert("Registered successfully")
-        } else {
-            alert(data.error?.message || "Something went wrong")
-        }
+
     }
 
     return (
