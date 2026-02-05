@@ -5,13 +5,6 @@ const BASE_URL = process.env.NEXT_PUBLIC_STRAPI_URL!;
 export async function POST(request: NextRequest) {
     try {
 
-        if (!BASE_URL) {
-            return NextResponse.json(
-                { success: false, message: "STRAPI URL missing" },
-                { status: 500 }
-            );
-        }
-
         const body = await request.json();
         const { username, email, password } = body;
 
@@ -25,28 +18,34 @@ export async function POST(request: NextRequest) {
 
         const data = await strapiRes.json();
 
-        console.log("STRAPI RESPONSE:", data);
-
         if (!strapiRes.ok) {
             return NextResponse.json(
                 {
                     success: false,
                     message: data?.error?.message || "Strapi error",
-                    error: data,
                 },
                 { status: strapiRes.status }
             );
         }
 
-        return NextResponse.json({
+        // ✅ CREATE RESPONSE
+        const response = NextResponse.json({
             success: true,
-            jwt: data.jwt,
             user: data.user,
         });
 
-    } catch (error: any) {
+        // ✅ SET COOKIE HERE
+        response.cookies.set("jwt", data.jwt, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            path: "/",
+            maxAge: 60 * 60 * 24 * 7, // 7 days
+        });
 
-        console.error("REGISTER ERROR:", error);
+        return response;
+
+    } catch (error: any) {
 
         return NextResponse.json(
             {
