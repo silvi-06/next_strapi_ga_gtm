@@ -4,6 +4,8 @@ const BASE_URL = process.env.NEXT_PUBLIC_STRAPI_URL!;
 
 export async function POST(request: NextRequest) {
     try {
+        console.log("STRAPI URL:", process.env.NEXT_PUBLIC_STRAPI_URL);
+
         const body = await request.json()
         const { username, email, password } = body
         const response = await fetch(`${BASE_URL}/api/auth/local/register`, {
