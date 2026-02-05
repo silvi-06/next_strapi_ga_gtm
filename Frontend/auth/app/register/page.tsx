@@ -27,6 +27,11 @@ export default function Register() {
         const data = await response.json()
         console.log(data)
 
+        if (!data.success) {
+            alert(data.message);
+            return;
+        }
+
         if (data.data.jwt) {
             alert("Registered successfully")
         } else {

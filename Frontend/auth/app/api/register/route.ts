@@ -4,44 +4,54 @@ const BASE_URL = process.env.NEXT_PUBLIC_STRAPI_URL!;
 
 export async function POST(request: NextRequest) {
     try {
-        const body = await request.json();
-        const { username, email, password } = body;
 
-        const response = await fetch(`${BASE_URL}/api/auth/local/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, email, password }),
-        });
-
-        const data = await response.json();
-
-        // 🔴 THIS IS THE IMPORTANT PART
-        if (!response.ok) {
+        if (!BASE_URL) {
             return NextResponse.json(
-                {
-                    message: "Registration failed",
-                    success: false,
-                    error: data,
-                },
-                { status: response.status }
+                { success: false, message: "STRAPI URL missing" },
+                { status: 500 }
             );
         }
 
-        // ✅ Only here means Strapi ACTUALLY succeeded
-        return NextResponse.json(
-            {
-                message: "User Added",
-                success: true,
-                data,
-            },
-            { status: 201 }
-        );
+        const body = await request.json();
+        const { username, email, password } = body;
 
-    } catch (error) {
+        const strapiRes = await fetch(`${BASE_URL}/api/auth/local/register`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, email, password }),
+        });
+
+        const data = await strapiRes.json();
+
+        console.log("STRAPI RESPONSE:", data);
+
+        if (!strapiRes.ok) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: data?.error?.message || "Strapi error",
+                    error: data,
+                },
+                { status: strapiRes.status }
+            );
+        }
+
+        return NextResponse.json({
+            success: true,
+            jwt: data.jwt,
+            user: data.user,
+        });
+
+    } catch (error: any) {
+
+        console.error("REGISTER ERROR:", error);
+
         return NextResponse.json(
             {
-                message: "Internal Server Error",
                 success: false,
+                message: error.message,
             },
             { status: 500 }
         );
