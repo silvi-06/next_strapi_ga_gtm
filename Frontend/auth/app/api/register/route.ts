@@ -4,33 +4,46 @@ const BASE_URL = process.env.NEXT_PUBLIC_STRAPI_URL!;
 
 export async function POST(request: NextRequest) {
     try {
-        console.log("STRAPI URL:", process.env.NEXT_PUBLIC_STRAPI_URL);
+        const body = await request.json();
+        const { username, email, password } = body;
 
-        const body = await request.json()
-        const { username, email, password } = body
         const response = await fetch(`${BASE_URL}/api/auth/local/register`, {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({
-                username,
-                email,
-                password
-            })
-        })
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, email, password }),
+        });
 
-        const data = await response.json()
+        const data = await response.json();
 
-        return NextResponse.json({
-            message: 'User Added.',
-            success: true,
-            data
-        }, { status: 201 })
+        // 🔴 THIS IS THE IMPORTANT PART
+        if (!response.ok) {
+            return NextResponse.json(
+                {
+                    message: "Registration failed",
+                    success: false,
+                    error: data,
+                },
+                { status: response.status }
+            );
+        }
 
-    } catch (e: any) {
-        return NextResponse.json({
-            message: "Internal Server Error.",
-            success: "false",
-            error: e.error
-        }, { status: 500 })
+        // ✅ Only here means Strapi ACTUALLY succeeded
+        return NextResponse.json(
+            {
+                message: "User Added",
+                success: true,
+                data,
+            },
+            { status: 201 }
+        );
+
+    } catch (error) {
+        return NextResponse.json(
+            {
+                message: "Internal Server Error",
+                success: false,
+            },
+            { status: 500 }
+        );
     }
 }
