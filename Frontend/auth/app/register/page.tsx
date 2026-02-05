@@ -14,7 +14,7 @@ export default function Register() {
     const handleSubmit = async (e: any) => {
         e.preventDefault()
         const response = await fetch(
-            'http://localhost:3000/api/register',
+            '/api/register',
             {
                 method: 'POST',
                 headers: {
